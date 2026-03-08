@@ -28,6 +28,25 @@ internal class PrinterOptions(Formatter formatter)
     public bool IncludeGenerated { get; set; }
     public Formatter Formatter { get; set; } = formatter;
 
+    /// <summary>
+    /// When false, opening braces are placed on the same line (K&R style).
+    /// When true (default), opening braces go on a new line (Allman style).
+    /// Corresponds to csharp_new_line_before_open_brace.
+    /// </summary>
+    public bool BraceNewLine { get; set; } = true;
+
+    /// <summary>
+    /// When true, always wrap single-statement bodies in braces.
+    /// Corresponds to csharp_prefer_braces = true.
+    /// </summary>
+    public bool PreferBraces { get; set; }
+
+    /// <summary>
+    /// When true, omit default accessibility modifiers (private for members, internal for top-level types).
+    /// Corresponds to dotnet_style_require_accessibility_modifiers = omit_if_default.
+    /// </summary>
+    public bool OmitDefaultAccessibilityModifiers { get; set; }
+
     public const int WidthUsedByTests = 100;
 
     internal static string GetLineEnding(string code, PrinterOptions printerOptions)

@@ -8,10 +8,26 @@ internal static class OptionalBraces
 {
     public static Doc Print(StatementSyntax node, PrintingContext context)
     {
-        return node is BlockSyntax blockSyntax
-            ? Block.Print(blockSyntax, context)
-            : DocUtilities.RemoveInitialDoubleHardLine(
-                Doc.Indent(Doc.HardLine, Node.Print(node, context))
+        if (node is BlockSyntax blockSyntax)
+        {
+            return Block.Print(blockSyntax, context);
+        }
+
+        if (context.Options.PreferBraces)
+        {
+            // Wrap single statement in braces
+            var braceLeading = context.Options.BraceNewLine ? (Doc)Doc.Line : (Doc)" ";
+            return Doc.Group(
+                braceLeading,
+                "{",
+                Doc.Indent(Doc.HardLine, Node.Print(node, context)),
+                Doc.HardLine,
+                "}"
             );
+        }
+
+        return DocUtilities.RemoveInitialDoubleHardLine(
+            Doc.Indent(Doc.HardLine, Node.Print(node, context))
+        );
     }
 }

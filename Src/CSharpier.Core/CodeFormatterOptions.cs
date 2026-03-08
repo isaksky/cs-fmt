@@ -7,6 +7,9 @@ public class CodeFormatterOptions
     public int IndentSize { get; init; } = 4;
     public EndOfLine EndOfLine { get; init; } = EndOfLine.Auto;
     public bool IncludeGenerated { get; init; }
+    public bool BraceNewLine { get; init; } = true;
+    public bool PreferBraces { get; init; }
+    public bool OmitDefaultAccessibilityModifiers { get; init; }
 
     internal PrinterOptions ToPrinterOptions()
     {
@@ -17,7 +20,24 @@ public class CodeFormatterOptions
             IndentSize = this.IndentSize,
             EndOfLine = this.EndOfLine,
             IncludeGenerated = this.IncludeGenerated,
+            BraceNewLine = this.BraceNewLine,
+            PreferBraces = this.PreferBraces,
+            OmitDefaultAccessibilityModifiers = this.OmitDefaultAccessibilityModifiers,
         };
+    }
+
+    public static async Task<CodeFormatterResult> FormatAsync(
+        string code,
+        CodeFormatterOptions? options = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        options ??= new CodeFormatterOptions();
+        return await CodeFormatter.FormatAsync(
+            code,
+            options.ToPrinterOptions(),
+            cancellationToken
+        );
     }
 }
 

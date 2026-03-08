@@ -31,7 +31,8 @@ internal static class IfStatement
 
         if (node.Else != null)
         {
-            docs.Add(Doc.HardLine, Node.Print(node.Else, context));
+            var separator = context.Options.BraceNewLine ? (Doc)Doc.HardLine : (Doc)" ";
+            docs.Add(separator, Node.Print(node.Else, context));
         }
 
         return Doc.Concat(ref docs);

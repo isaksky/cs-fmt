@@ -1,5 +1,7 @@
 using CSharpier.Core.DocTypes;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CSharpier.Core.CSharp.SyntaxPrinter;
 
@@ -50,12 +52,20 @@ internal static class Modifiers
             return Doc.Null;
         }
 
-        return Doc.Group(Doc.Join(" ", modifiers.Select(o => Token.Print(o, context))), " ");
+        var filtered = FilterDefaultModifiers(modifiers, context);
+        if (filtered.Count == 0)
+        {
+            return Doc.Null;
+        }
+
+        return Doc.Group(Doc.Join(" ", filtered.Select(o => Token.Print(o, context))), " ");
     }
 
     public static Doc PrintSorted(SyntaxTokenList modifiers, PrintingContext context)
     {
+        var filtered = FilterDefaultModifiers(modifiers, context);
         return PrintWithSortedModifiers(
+            filtered,
             modifiers,
             context,
             sortedModifiers =>
@@ -68,7 +78,9 @@ internal static class Modifiers
         PrintingContext context
     )
     {
+        var filtered = FilterDefaultModifiers(modifiers, context);
         return PrintWithSortedModifiers(
+            filtered,
             modifiers,
             context,
             sortedModifiers =>
@@ -87,8 +99,93 @@ internal static class Modifiers
         );
     }
 
+    /// <summary>
+    /// Filters out default accessibility modifiers when OmitDefaultAccessibilityModifiers is enabled.
+    /// - private is default for class/struct members
+    /// - internal is default for top-level type declarations
+    /// </summary>
+    private static SyntaxTokenList FilterDefaultModifiers(
+        SyntaxTokenList modifiers,
+        PrintingContext context
+    )
+    {
+        if (!context.Options.OmitDefaultAccessibilityModifiers)
+        {
+            return modifiers;
+        }
+
+        var parent = modifiers.Count > 0 ? modifiers[0].Parent : null;
+        if (parent == null)
+        {
+            return modifiers;
+        }
+
+        // Determine which modifier kind is the default
+        SyntaxKind? defaultModifierKind = null;
+
+        if (IsTopLevelTypeDeclaration(parent))
+        {
+            // Top-level types default to internal
+            defaultModifierKind = SyntaxKind.InternalKeyword;
+        }
+        else if (IsMemberInTypeDeclaration(parent))
+        {
+            // Members of class/struct/record default to private
+            defaultModifierKind = SyntaxKind.PrivateKeyword;
+        }
+
+        if (defaultModifierKind == null)
+        {
+            return modifiers;
+        }
+
+        // Only remove the default modifier if it's the only accessibility modifier present
+        // (i.e., don't remove "private" from "private protected")
+        var accessibilityModifiers = modifiers.Where(IsAccessibilityModifier).ToList();
+        if (accessibilityModifiers.Count == 1 && accessibilityModifiers[0].IsKind(defaultModifierKind.Value))
+        {
+            var tokenToRemove = accessibilityModifiers[0];
+            var remaining = modifiers.Where(m => m != tokenToRemove).ToList();
+
+            // Transfer any leading trivia from the removed token to the next token
+            if (remaining.Count > 0 && tokenToRemove.HasLeadingTrivia)
+            {
+                var existingTrivia = remaining[0].LeadingTrivia;
+                var combinedTrivia = tokenToRemove.LeadingTrivia.AddRange(existingTrivia);
+                remaining[0] = remaining[0].WithLeadingTrivia(combinedTrivia);
+            }
+
+            return new SyntaxTokenList(remaining);
+        }
+
+        return modifiers;
+    }
+
+    private static bool IsAccessibilityModifier(SyntaxToken token)
+    {
+        return token.IsKind(SyntaxKind.PublicKeyword)
+            || token.IsKind(SyntaxKind.PrivateKeyword)
+            || token.IsKind(SyntaxKind.ProtectedKeyword)
+            || token.IsKind(SyntaxKind.InternalKeyword);
+    }
+
+    private static bool IsTopLevelTypeDeclaration(SyntaxNode node)
+    {
+        // A type declaration whose parent is a namespace or compilation unit
+        return node is BaseTypeDeclarationSyntax or DelegateDeclarationSyntax
+            && node.Parent is BaseNamespaceDeclarationSyntax
+                or CompilationUnitSyntax;
+    }
+
+    private static bool IsMemberInTypeDeclaration(SyntaxNode node)
+    {
+        // A member whose parent is a type declaration (class, struct, record, interface)
+        return node.Parent is TypeDeclarationSyntax;
+    }
+
     private static Doc PrintWithSortedModifiers(
         in SyntaxTokenList modifiers,
+        in SyntaxTokenList originalModifiers,
         PrintingContext context,
         Func<IReadOnlyList<SyntaxToken>, Doc> print
     )
@@ -128,3 +225,4 @@ internal static class Modifiers
         return print(sortedModifiers);
     }
 }
+

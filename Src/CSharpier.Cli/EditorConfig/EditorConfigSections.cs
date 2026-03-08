@@ -53,6 +53,21 @@ internal class EditorConfigSections
             printerOptions.EndOfLine = endOfLine;
         }
 
+        if (resolvedConfiguration.BraceNewLine is { } braceNewLine)
+        {
+            printerOptions.BraceNewLine = braceNewLine;
+        }
+
+        if (resolvedConfiguration.PreferBraces is { } preferBraces)
+        {
+            printerOptions.PreferBraces = preferBraces;
+        }
+
+        if (resolvedConfiguration.OmitDefaultAccessibilityModifiers is { } omitModifiers)
+        {
+            printerOptions.OmitDefaultAccessibilityModifiers = omitModifiers;
+        }
+
         return printerOptions;
     }
 
@@ -64,6 +79,9 @@ internal class EditorConfigSections
         public int? MaxLineLength { get; }
         public EndOfLine? EndOfLine { get; }
         public string? Formatter { get; }
+        public bool? BraceNewLine { get; }
+        public bool? PreferBraces { get; }
+        public bool? OmitDefaultAccessibilityModifiers { get; }
 
         public ResolvedConfiguration(List<Section> sections)
         {
@@ -110,6 +128,29 @@ internal class EditorConfigSections
             }
 
             this.Formatter = sections.LastOrDefault(o => o.Formatter is not null)?.Formatter;
+
+            // csharp_new_line_before_open_brace = none => K&R style
+            var newLineBeforeOpenBrace = sections.LastOrDefault(o => o.NewLineBeforeOpenBrace != null)?.NewLineBeforeOpenBrace;
+            if (newLineBeforeOpenBrace != null)
+            {
+                this.BraceNewLine = !newLineBeforeOpenBrace.Equals("none", StringComparison.OrdinalIgnoreCase);
+            }
+
+            // csharp_prefer_braces = true[:severity] => mandatory braces
+            var preferBraces = sections.LastOrDefault(o => o.PreferBraces != null)?.PreferBraces;
+            if (preferBraces != null)
+            {
+                var value = preferBraces.Split(':')[0].Trim();
+                this.PreferBraces = value.Equals("true", StringComparison.OrdinalIgnoreCase);
+            }
+
+            // dotnet_style_require_accessibility_modifiers = omit_if_default[:severity]
+            var requireModifiers = sections.LastOrDefault(o => o.RequireAccessibilityModifiers != null)?.RequireAccessibilityModifiers;
+            if (requireModifiers != null)
+            {
+                var value = requireModifiers.Split(':')[0].Trim();
+                this.OmitDefaultAccessibilityModifiers = value.Equals("omit_if_default", StringComparison.OrdinalIgnoreCase);
+            }
         }
     }
 }

@@ -155,6 +155,9 @@ public static class CSharpFormatter
                     LineEnding = lineEnding,
                     IndentSize = printerOptions.IndentSize,
                     UseTabs = printerOptions.UseTabs,
+                    BraceNewLine = printerOptions.BraceNewLine,
+                    PreferBraces = printerOptions.PreferBraces,
+                    OmitDefaultAccessibilityModifiers = printerOptions.OmitDefaultAccessibilityModifiers,
                 },
             };
             var document = Node.Print(rootNode, printingContext);
@@ -181,6 +184,9 @@ public static class CSharpFormatter
                         LineEnding = lineEnding,
                         IndentSize = printerOptions.IndentSize,
                         UseTabs = printerOptions.UseTabs,
+                        BraceNewLine = printerOptions.BraceNewLine,
+                        PreferBraces = printerOptions.PreferBraces,
+                        OmitDefaultAccessibilityModifiers = printerOptions.OmitDefaultAccessibilityModifiers,
                     },
                 };
                 document = Node.Print(
