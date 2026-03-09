@@ -16,6 +16,7 @@ internal class Section(SectionData section, string directory)
     public string? NewLineBeforeOpenBrace { get; } = section.Keys["csharp_new_line_before_open_brace"];
     public string? PreferBraces { get; } = section.Keys["csharp_prefer_braces"];
     public string? RequireAccessibilityModifiers { get; } = section.Keys["dotnet_style_require_accessibility_modifiers"];
+    public string? NamespaceDeclarations { get; } = section.Keys["csharp_style_namespace_declarations"];
 
     public bool IsMatch(string fileName, bool ignoreDirectory)
     {

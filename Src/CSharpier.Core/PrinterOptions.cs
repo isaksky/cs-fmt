@@ -47,6 +47,12 @@ internal class PrinterOptions(Formatter formatter)
     /// </summary>
     public bool OmitDefaultAccessibilityModifiers { get; set; }
 
+    /// <summary>
+    /// When true, convert block-scoped namespaces to file-scoped namespaces.
+    /// Corresponds to csharp_style_namespace_declarations = file_scoped.
+    /// </summary>
+    public bool PreferFileScopedNamespace { get; set; }
+
     public const int WidthUsedByTests = 100;
 
     internal static string GetLineEnding(string code, PrinterOptions printerOptions)

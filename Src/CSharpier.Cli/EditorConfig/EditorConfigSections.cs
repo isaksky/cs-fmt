@@ -68,6 +68,11 @@ internal class EditorConfigSections
             printerOptions.OmitDefaultAccessibilityModifiers = omitModifiers;
         }
 
+        if (resolvedConfiguration.PreferFileScopedNamespace is { } preferFileScoped)
+        {
+            printerOptions.PreferFileScopedNamespace = preferFileScoped;
+        }
+
         return printerOptions;
     }
 
@@ -82,6 +87,7 @@ internal class EditorConfigSections
         public bool? BraceNewLine { get; }
         public bool? PreferBraces { get; }
         public bool? OmitDefaultAccessibilityModifiers { get; }
+        public bool? PreferFileScopedNamespace { get; }
 
         public ResolvedConfiguration(List<Section> sections)
         {
@@ -150,6 +156,14 @@ internal class EditorConfigSections
             {
                 var value = requireModifiers.Split(':')[0].Trim();
                 this.OmitDefaultAccessibilityModifiers = value.Equals("omit_if_default", StringComparison.OrdinalIgnoreCase);
+            }
+
+            // csharp_style_namespace_declarations = file_scoped[:severity]
+            var nsDeclarations = sections.LastOrDefault(o => o.NamespaceDeclarations != null)?.NamespaceDeclarations;
+            if (nsDeclarations != null)
+            {
+                var value = nsDeclarations.Split(':')[0].Trim();
+                this.PreferFileScopedNamespace = value.Equals("file_scoped", StringComparison.OrdinalIgnoreCase);
             }
         }
     }

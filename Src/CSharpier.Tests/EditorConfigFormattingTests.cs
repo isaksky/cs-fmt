@@ -487,4 +487,68 @@ public class EditorConfigFormattingTests
         result.Should().NotContain("private class Inner");
         result.Should().Contain("class Inner");
     }
+    // ==========================================================
+    // FILE-SCOPED NAMESPACE CONVERSION TESTS
+    // ==========================================================
+
+    private static PrinterOptions FileScopedOptions() =>
+        new(Formatter.CSharp) { PreferFileScopedNamespace = true };
+
+    [Test]
+    public async Task FileScoped_Basic_Conversion()
+    {
+        var input = "namespace N\n{\n    class C\n    {\n    }\n}\n";
+        var result = await FormatAsync(input, FileScopedOptions());
+        result.Should().Contain("namespace N;");
+        result.Should().NotContain("namespace N\n{");
+    }
+
+    [Test]
+    public async Task FileScoped_Already_FileScoped_Unchanged()
+    {
+        var input = "namespace N;\n\nclass C\n{\n}\n";
+        var result = await FormatAsync(input, FileScopedOptions());
+        result.Should().Contain("namespace N;");
+    }
+
+    [Test]
+    public async Task FileScoped_Nested_Not_Converted()
+    {
+        var input = "namespace N\n{\n    namespace Inner\n    {\n        class C\n        {\n        }\n    }\n}\n";
+        var result = await FormatAsync(input, FileScopedOptions());
+        result.Should().Contain("namespace Inner");
+        result.Should().NotContain("namespace N;");
+    }
+
+    [Test]
+    public async Task FileScoped_Multiple_Not_Converted()
+    {
+        var input = "namespace A\n{\n    class C1 { }\n}\n\nnamespace B\n{\n    class C2 { }\n}\n";
+        var result = await FormatAsync(input, FileScopedOptions());
+        result.Should().NotContain("namespace A;");
+        result.Should().NotContain("namespace B;");
+    }
+
+    [Test]
+    public async Task FileScoped_Default_No_Conversion()
+    {
+        var input = "namespace N\n{\n    class C\n    {\n    }\n}\n";
+        var result = await FormatAsync(input);
+        result.Should().NotContain("namespace N;");
+        result.Should().Contain("namespace N\n{");
+    }
+
+    [Test]
+    public async Task FileScoped_Combined_With_KR()
+    {
+        var input = "namespace N\n{\n    class C\n    {\n        void M()\n        {\n        }\n    }\n}\n";
+        var options = new PrinterOptions(Formatter.CSharp)
+        {
+            PreferFileScopedNamespace = true,
+            BraceNewLine = false,
+        };
+        var result = await FormatAsync(input, options);
+        result.Should().Contain("namespace N;");
+        result.Should().Contain("void M() { }");
+    }
 }

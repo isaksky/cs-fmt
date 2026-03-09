@@ -10,6 +10,7 @@ public class CodeFormatterOptions
     public bool BraceNewLine { get; init; } = true;
     public bool PreferBraces { get; init; }
     public bool OmitDefaultAccessibilityModifiers { get; init; }
+    public bool PreferFileScopedNamespace { get; init; }
 
     internal PrinterOptions ToPrinterOptions()
     {
@@ -23,6 +24,7 @@ public class CodeFormatterOptions
             BraceNewLine = this.BraceNewLine,
             PreferBraces = this.PreferBraces,
             OmitDefaultAccessibilityModifiers = this.OmitDefaultAccessibilityModifiers,
+            PreferFileScopedNamespace = this.PreferFileScopedNamespace,
         };
     }
 
