@@ -13,7 +13,10 @@ internal static class ImplicitObjectCreationExpression
                 Token.Print(node.NewKeyword, context),
                 ArgumentList.Print(node.ArgumentList, context),
                 node.Initializer != null
-                    ? Doc.Concat(Doc.Line, InitializerExpression.Print(node.Initializer, context))
+                    ? Doc.Concat(
+                        context.Options.BraceNewLine ? Doc.Line : (Doc)" ",
+                        InitializerExpression.Print(node.Initializer, context)
+                    )
                     : Doc.Null
             )
         );

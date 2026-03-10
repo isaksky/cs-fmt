@@ -30,7 +30,7 @@ internal static class NamespaceDeclaration
             " ",
             Node.Print(node.Name, context),
             Doc.Group(
-                Doc.Line,
+                context.Options.BraceNewLine ? Doc.Line : (Doc)" ",
                 Token.Print(node.OpenBraceToken, context),
                 Doc.Indent(innerDocs),
                 hasMembers || hasUsing || hasExterns ? Doc.HardLine : Doc.Null,

@@ -86,9 +86,11 @@ internal static class BasePropertyDeclaration
                 separator = Doc.Line;
             }
 
+            var braceSeparator = context.Options.BraceNewLine ? separator : (Doc)" ";
+
             contents = Doc.Group(
                 Doc.Concat(
-                    separator,
+                    braceSeparator,
                     Token.Print(node.AccessorList.OpenBraceToken, context),
                     Doc.Indent(
                         node.AccessorList.Accessors.Select(o =>

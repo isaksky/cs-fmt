@@ -40,7 +40,7 @@ internal static class SwitchStatement
                     Doc.SoftLine
                 ),
                 Token.Print(node.CloseParenToken, context),
-                node.Sections.Count == 0 ? " " : Doc.Line,
+                node.Sections.Count == 0 ? " " : context.Options.BraceNewLine ? Doc.Line : (Doc)" ",
                 Token.Print(node.OpenBraceToken, context),
                 sections,
                 Token.Print(node.CloseBraceToken, context)
