@@ -21,7 +21,8 @@ Plus all standard CSharpier settings: `indent_size`, `indent_style`, `max_line_l
 
 Install globally:
 ```bash
-dotnet tool install cs-fmt -g
+dotnet tool install cs-fmt -g --prerelease
+# After release: dotnet tool install cs-fmt -g
 ```
 
 Format a directory:
