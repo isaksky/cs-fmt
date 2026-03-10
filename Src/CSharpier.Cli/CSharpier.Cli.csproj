@@ -13,7 +13,6 @@
   <ItemGroup>
     <PackageReference Include="ini-parser-netstandard" />
     <PackageReference Include="NReco.Logging.File" />
-    <PackageReference Include="StrongNamer" />
     <PackageReference Include="System.CommandLine" />
     <PackageReference Include="System.IO.Abstractions" />
     <PackageReference Include="System.IO.Abstractions.TestingHelpers" />
