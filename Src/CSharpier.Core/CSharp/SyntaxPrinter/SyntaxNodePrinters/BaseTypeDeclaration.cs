@@ -6,10 +6,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CSharpier.Core.CSharp.SyntaxPrinter.SyntaxNodePrinters;
 
-internal static class BaseTypeDeclaration
-{
-    public static Doc Print(BaseTypeDeclarationSyntax node, PrintingContext context)
-    {
+static class BaseTypeDeclaration {
+    public static Doc Print(BaseTypeDeclarationSyntax node, PrintingContext context) {
         ParameterListSyntax? parameterList = null;
         TypeParameterListSyntax? typeParameterList = null;
         SyntaxList<TypeParameterConstraintClauseSyntax>? constraintClauses = null;
@@ -18,12 +16,10 @@ internal static class BaseTypeDeclaration
         Func<Doc>? members = null;
         SyntaxToken? semicolonToken = null;
 
-        if (node is TypeDeclarationSyntax typeDeclarationSyntax)
-        {
+        if (node is TypeDeclarationSyntax typeDeclarationSyntax) {
             typeParameterList = typeDeclarationSyntax.TypeParameterList;
             constraintClauses = typeDeclarationSyntax.ConstraintClauses;
-            if (typeDeclarationSyntax.Members.Count > 0)
-            {
+            if (typeDeclarationSyntax.Members.Count > 0) {
                 members = () =>
                     Doc.Indent(
                         MembersWithForcedLines.Print(
@@ -34,38 +30,26 @@ internal static class BaseTypeDeclaration
                     );
             }
 
-            if (node is ClassDeclarationSyntax classDeclarationSyntax)
-            {
+            if (node is ClassDeclarationSyntax classDeclarationSyntax) {
                 keyword = classDeclarationSyntax.Keyword;
                 parameterList = classDeclarationSyntax.ParameterList;
-            }
-            else if (node is StructDeclarationSyntax structDeclarationSyntax)
-            {
+            } else if (node is StructDeclarationSyntax structDeclarationSyntax) {
                 keyword = structDeclarationSyntax.Keyword;
                 parameterList = structDeclarationSyntax.ParameterList;
-            }
-            else if (node is InterfaceDeclarationSyntax interfaceDeclarationSyntax)
-            {
+            } else if (node is InterfaceDeclarationSyntax interfaceDeclarationSyntax) {
                 keyword = interfaceDeclarationSyntax.Keyword;
-            }
-            else if (node is RecordDeclarationSyntax recordDeclarationSyntax)
-            {
+            } else if (node is RecordDeclarationSyntax recordDeclarationSyntax) {
                 recordKeyword = recordDeclarationSyntax.Keyword;
                 keyword = recordDeclarationSyntax.ClassOrStructKeyword;
                 parameterList = recordDeclarationSyntax.ParameterList;
-            }
-            else if (node is ExtensionDeclarationSyntax extensionDeclarationSyntax)
-            {
+            } else if (node is ExtensionDeclarationSyntax extensionDeclarationSyntax) {
                 keyword = extensionDeclarationSyntax.Keyword;
                 parameterList = extensionDeclarationSyntax.ParameterList;
             }
 
             semicolonToken = typeDeclarationSyntax.SemicolonToken;
-        }
-        else if (node is EnumDeclarationSyntax enumDeclarationSyntax)
-        {
-            if (enumDeclarationSyntax.Members.Count > 0)
-            {
+        } else if (node is EnumDeclarationSyntax enumDeclarationSyntax) {
+            if (enumDeclarationSyntax.Members.Count > 0) {
                 members = () =>
                     Doc.Indent(
                         MembersWithForcedLines.Print(
@@ -81,47 +65,37 @@ internal static class BaseTypeDeclaration
         }
 
         var docs = new List<Doc>();
-        if (node.AttributeLists.Any())
-        {
+        if (node.AttributeLists.Any()) {
             docs.Add(AttributeLists.Print(node, node.AttributeLists, context));
         }
 
-        if (node.Modifiers.Any())
-        {
+        if (node.Modifiers.Any()) {
             docs.Add(Modifiers.PrintSorted(node.Modifiers, context));
         }
 
-        if (recordKeyword != null)
-        {
+        if (recordKeyword != null) {
             docs.Add(Token.PrintWithSuffix(recordKeyword.Value, " ", context));
         }
 
-        if (keyword != null)
-        {
-            if (node is ExtensionDeclarationSyntax)
-            {
+        if (keyword != null) {
+            if (node is ExtensionDeclarationSyntax) {
                 docs.Add(Token.Print(keyword.Value, context));
-            }
-            else
-            {
+            } else {
                 docs.Add(Token.PrintWithSuffix(keyword.Value, " ", context));
             }
         }
 
         docs.Add(Token.Print(node.Identifier, context));
 
-        if (typeParameterList != null)
-        {
+        if (typeParameterList != null) {
             docs.Add(TypeParameterList.Print(typeParameterList, context));
         }
 
-        if (parameterList != null)
-        {
+        if (parameterList != null) {
             docs.Add(ParameterList.Print(parameterList, context));
         }
 
-        if (node.BaseList != null)
-        {
+        if (node.BaseList != null) {
             var baseListDoc = Doc.Concat(
                 Token.Print(node.BaseList.ColonToken, context),
                 " ",
@@ -144,27 +118,23 @@ internal static class BaseTypeDeclaration
             docs.Add(Doc.Group(Doc.Indent(Doc.Line, baseListDoc)));
         }
 
-        if (constraintClauses != null)
-        {
+        if (constraintClauses != null) {
             docs.Add(ConstraintClauses.Print(constraintClauses.Value, context));
         }
 
-        if (members != null)
-        {
+        if (members != null) {
             var membersContent = members();
 
             DocUtilities.RemoveInitialDoubleHardLine(membersContent);
 
             docs.Add(
-                Doc.HardLine,
+                context.Options.BraceNewLine ? Doc.HardLine : (Doc)" ",
                 Token.Print(node.OpenBraceToken, context),
                 membersContent,
                 Doc.HardLine,
                 Token.Print(node.CloseBraceToken, context)
             );
-        }
-        else if (node.OpenBraceToken.RawSyntaxKind() != SyntaxKind.None)
-        {
+        } else if (node.OpenBraceToken.RawSyntaxKind() != SyntaxKind.None) {
             Doc separator = node.CloseBraceToken.LeadingTrivia.Any(o =>
                 o.RawSyntaxKind() is not (SyntaxKind.WhitespaceTrivia or SyntaxKind.EndOfLineTrivia)
             )
@@ -172,15 +142,14 @@ internal static class BaseTypeDeclaration
                 : " ";
 
             docs.Add(
-                separator,
+                context.Options.BraceNewLine ? separator : (Doc)" ",
                 Token.Print(node.OpenBraceToken, context),
                 separator,
                 Token.Print(node.CloseBraceToken, context)
             );
         }
 
-        if (semicolonToken.HasValue)
-        {
+        if (semicolonToken.HasValue) {
             docs.Add(Token.Print(semicolonToken.Value, context));
         }
 
