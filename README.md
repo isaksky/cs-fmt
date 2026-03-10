@@ -1,69 +1,87 @@
-![CSharpier](./banner.svg)
+# cs-fmt
 
-CSharpier is an opinionated code formatter for c# and XML. It parses your code and re-prints it using its own rules. 
-The printing process was ported from [prettier](https://github.com/prettier/prettier) but has evolved over time.
+A configurable C# code formatter that respects your `.editorconfig` settings. Fork of [CSharpier](https://github.com/belav/csharpier).
 
-CSharpier provides a few basic options that affect formatting and has no plans to add more. It follows the [Option Philosophy](https://prettier.io/docs/en/option-philosophy.html) of prettier.
+Unlike CSharpier (which is deliberately opinionated with minimal options), **cs-fmt** reads your `.editorconfig` and enforces the style *you* choose.
 
-### Quick Start
-Install CSharpier globally using the following command.
+Note: This was created via Claude 4.6 Opus as a test project to see how capable it is. None of the code has been written manually by me (Isak).
+
+## Supported `.editorconfig` Settings
+
+| Setting | Values | Effect |
+|---------|--------|--------|
+| `csharp_new_line_before_open_brace` | `none` | K&R brace style (same line) |
+| `csharp_prefer_braces` | `true` | Wrap single-statement bodies in `{ }` |
+| `dotnet_style_require_accessibility_modifiers` | `omit_if_default` | Remove redundant `private`, `internal`, etc. |
+| `csharp_style_namespace_declarations` | `file_scoped` | Convert `namespace N { }` → `namespace N;` |
+
+Plus all standard CSharpier settings: `indent_size`, `indent_style`, `max_line_length`, `end_of_line`.
+
+## Quick Start
+
+Install globally:
 ```bash
-dotnet tool install csharpier -g
+dotnet tool install cs-fmt -g
 ```
-Then format the contents of a directory and its children with the following command.
+
+Format a directory:
 ```bash
-csharpier format .
+cs-fmt format .
 ```
 
-CSharpier can also format [on save in your editor](https://csharpier.com/docs/Editors) or as a [pre-commit hook](https://csharpier.com/docs/Pre-commit). Then you can ensure code was formatted with a [CI/CD tool](https://csharpier.com/docs/ContinuousIntegration).
-
----
-
-[Read the documentation](https://csharpier.com)    
-  
-[Try it out](https://playground.csharpier.com)
-
----
-
-### Before
-```c#
-public class ClassName {
-    public void CallMethod() { 
-        this.LongUglyMethod("1234567890", "abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    }
-}
+Format a single file:
+```bash
+cs-fmt format MyFile.cs
 ```
 
-### After
-```c#
-public class ClassName
+## Example `.editorconfig`
+
+```ini
+root = true
+
+[*.cs]
+indent_size = 4
+end_of_line = lf
+csharp_new_line_before_open_brace = none
+csharp_prefer_braces = true:error
+dotnet_style_require_accessibility_modifiers = omit_if_default:error
+csharp_style_namespace_declarations = file_scoped:error
+```
+
+## Before / After
+
+### Before (default CSharpier style)
+```csharp
+namespace MyApp
 {
-    public void CallMethod()
+    internal class Program
     {
-        this.LongUglyMethod(
-            "1234567890",
-            "abcdefghijklmnopqrstuvwxyz",
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        );
+        private void DoWork()
+        {
+            if (condition)
+                Execute();
+        }
     }
 }
 ```
 
-## Contributing
-See [Development Readme](CONTRIBUTING.md)  
+### After (with the `.editorconfig` above)
+```csharp
+namespace MyApp;
 
-Join Us [![Discord](https://img.shields.io/badge/Discord-chat?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/HfAKGEZQcX)
+class Program {
+    void DoWork() {
+        if (condition) {
+            Execute();
+        }
+    }
+}
+```
 
-## Sponsors
+## Attribution
 
-Thanks to the following companies for sponsoring the ongoing development of CSharpier.
+cs-fmt is a fork of [CSharpier](https://github.com/belav/csharpier) by Bela VanderVoort, licensed under the MIT License. The core formatting engine (Roslyn parsing + Prettier-style document printing) comes from CSharpier.
 
-[.NET on AWS Open Source Software Fund](https://github.com/aws/dotnet-foss) \
- \
-[<img src="./Src/Website/static/img/aws.png" />](https://github.com/aws/dotnet-foss)
+## License
 
-[Fern](https://buildwithfern.com/) \
- \
-[<img src="./fern.svg" />]((https://buildwithfern.com/))
-
-And a huge thanks to all the others who sponsor the project through [Github sponsors](https://github.com/sponsors/belav)
+MIT

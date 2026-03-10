@@ -1,48 +1,46 @@
-CSharpier is an opinionated code formatter for c#. It uses Roslyn to parse your code and re-prints it using its own rules.
-The printing process was ported from [prettier](https://github.com/prettier/prettier) but has evolved over time.
+cs-fmt is a configurable C# code formatter that respects your `.editorconfig` settings. Fork of [CSharpier](https://github.com/belav/csharpier).
 
-CSharpier provides a few basic options that affect formatting and has no plans to add more. It follows the [Option Philosophy](https://prettier.io/docs/en/option-philosophy.html) of prettier.
+### Supported `.editorconfig` Settings
+
+| Setting | Values | Effect |
+|---------|--------|--------|
+| `csharp_new_line_before_open_brace` | `none` | K&R brace style |
+| `csharp_prefer_braces` | `true` | Mandatory braces |
+| `dotnet_style_require_accessibility_modifiers` | `omit_if_default` | Remove redundant modifiers |
+| `csharp_style_namespace_declarations` | `file_scoped` | File-scoped namespaces |
 
 ### Quick Start
-Install CSharpier globally using the following command.
 ```bash
-dotnet tool install csharpier -g
+dotnet tool install cs-fmt -g
 ```
-Then format the contents of a directory and its children with the following command.
 ```bash
-csharpier .
+cs-fmt format .
 ```
-
-CSharpier can also format [on save in your editor](https://csharpier.com/docs/Editors), as a [pre-commit hook](https://csharpier.com/docs/Pre-commit), as [part of your build](https://csharpier.com/docs/MSBuild) or even [programatically](https://csharpier.com/docs/API). Then you can ensure code was formatted with a [CI/CD tool](https://csharpier.com/docs/ContinuousIntegration).
-
----
-
-[Read the documentation](https://csharpier.com)
-
-[Try it out](https://playground.csharpier.com)
-
----
 
 ### Before
 ```c#
-public class ClassName {
-    public void CallMethod() { 
-        this.LongUglyMethod("1234567890", "abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+namespace MyApp
+{
+    internal class Program
+    {
+        private void DoWork()
+        {
+            if (condition)
+                Execute();
+        }
     }
 }
 ```
 
-### After
+### After (with .editorconfig above)
 ```c#
-public class ClassName
-{
-    public void CallMethod()
-    {
-        this.LongUglyMethod(
-            "1234567890",
-            "abcdefghijklmnopqrstuvwxyz",
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        );
+namespace MyApp;
+
+class Program {
+    void DoWork() {
+        if (condition) {
+            Execute();
+        }
     }
 }
 ```

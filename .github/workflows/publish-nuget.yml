@@ -1,0 +1,41 @@
+name: Publish cs-fmt to NuGet
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+
+      - name: Extract version from release tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Pack
+        run: >
+          dotnet pack Src/CSharpier.Cli/CSharpier.Cli.csproj
+          -c Release
+          -p:Version=${{ steps.version.outputs.VERSION }}
+          -o ./nupkg
+
+      - name: Push to NuGet
+        run: >
+          dotnet nuget push ./nupkg/cs-fmt.${{ steps.version.outputs.VERSION }}.nupkg
+          --api-key ${{ secrets.NUGET_API_KEY }}
+          --source https://api.nuget.org/v3/index.json
+
+      - name: Upload nupkg as release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./nupkg/cs-fmt.${{ steps.version.outputs.VERSION }}.nupkg
