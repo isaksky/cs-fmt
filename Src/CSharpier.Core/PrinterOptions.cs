@@ -53,6 +53,13 @@ internal class PrinterOptions(Formatter formatter)
     /// </summary>
     public bool PreferFileScopedNamespace { get; set; }
 
+    /// <summary>
+    /// When true, the first expression in a method chain stays on the same line
+    /// as the variable declaration or assignment operator.
+    /// Corresponds to csharpier_chain_first_expression_on_same_line = true.
+    /// </summary>
+    public bool ChainFirstExpressionOnSameLine { get; set; }
+
     public const int WidthUsedByTests = 100;
 
     internal static string GetLineEnding(string code, PrinterOptions printerOptions)

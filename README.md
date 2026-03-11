@@ -14,6 +14,7 @@ Note: This was created via Claude 4.6 Opus as a test project to see how capable 
 | `csharp_prefer_braces` | `true` | Wrap single-statement bodies in `{ }` |
 | `dotnet_style_require_accessibility_modifiers` | `omit_if_default` | Remove redundant `private`, `internal`, etc. |
 | `csharp_style_namespace_declarations` | `file_scoped` | Convert `namespace N { }` → `namespace N;` |
+| `csharpier_chain_first_expression_on_same_line` | `true` | Keep first expression of a method chain on the same line as `=` |
 
 Plus all standard CSharpier settings: `indent_size`, `indent_style`, `max_line_length`, `end_of_line`.
 
@@ -47,6 +48,23 @@ csharp_new_line_before_open_brace = none
 csharp_prefer_braces = true:error
 dotnet_style_require_accessibility_modifiers = omit_if_default:error
 csharp_style_namespace_declarations = file_scoped:error
+csharpier_chain_first_expression_on_same_line = true
+```
+
+### Method Chain Formatting
+
+With `csharpier_chain_first_expression_on_same_line = true`:
+```csharp
+// Before (default)
+var foo =
+    myList
+        .Where(c => c.Foo > 10)
+        .Select(c => c.Bar);
+
+// After (with option enabled)
+var foo = myList
+    .Where(c => c.Foo > 10)
+    .Select(c => c.Bar);
 ```
 
 ## Before / After

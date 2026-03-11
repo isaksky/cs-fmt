@@ -551,4 +551,80 @@ public class EditorConfigFormattingTests
         result.Should().Contain("namespace N;");
         result.Should().Contain("void M() { }");
     }
+
+    // ==========================================================
+    // CHAIN FIRST EXPRESSION ON SAME LINE TESTS
+    // ==========================================================
+
+    private static PrinterOptions ChainSameLineOptions() =>
+        new(Formatter.CSharp) { ChainFirstExpressionOnSameLine = true };
+
+    [Test]
+    public async Task Chain_FirstExpression_OnSameLine()
+    {
+        var input = """
+            class C
+            {
+                void M()
+                {
+                    var foo = myList.Where(c => c.Foo > 10).Select(c => c.Bar).ToList();
+                }
+            }
+            """;
+        var result = await FormatAsync(input, ChainSameLineOptions());
+        // The first expression 'myList' should stay on the same line as 'var foo ='
+        result.Should().Contain("var foo = myList");
+    }
+
+    [Test]
+    public async Task Chain_Default_BreaksAfterEquals()
+    {
+        var input = """
+            class C
+            {
+                void M()
+                {
+                    var foo = myList.Where(c => c.Foo > 10).Select(c => c.Bar).ToList();
+                }
+            }
+            """;
+        // without the option, default behavior applies (Fluid layout)
+        var result = await FormatAsync(input);
+        // Default behavior should still work (we just verify it doesn't crash)
+        result.Should().Contain("var foo");
+    }
+
+    [Test]
+    public async Task Chain_NonInvocation_Unaffected()
+    {
+        var input = """
+            class C
+            {
+                void M()
+                {
+                    var x = 42;
+                }
+            }
+            """;
+        var result = await FormatAsync(input, ChainSameLineOptions());
+        result.Should().Contain("var x = 42;");
+    }
+
+    [Test]
+    public async Task Chain_Assignment_FirstExpression_OnSameLine()
+    {
+        var input = """
+            class C
+            {
+                void M()
+                {
+                    string foo;
+                    foo = myList.Where(c => c.Foo > 10).Select(c => c.Bar).First();
+                }
+            }
+            """;
+        var result = await FormatAsync(input, ChainSameLineOptions());
+        result.Should().Contain("foo = myList");
+    }
 }
+

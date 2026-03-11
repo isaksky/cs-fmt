@@ -169,6 +169,7 @@ public static class CSharpFormatter
                     BraceNewLine = printerOptions.BraceNewLine,
                     PreferBraces = printerOptions.PreferBraces,
                     OmitDefaultAccessibilityModifiers = printerOptions.OmitDefaultAccessibilityModifiers,
+                    ChainFirstExpressionOnSameLine = printerOptions.ChainFirstExpressionOnSameLine,
                 },
             };
             var document = Node.Print(rootNode, printingContext);
@@ -198,6 +199,7 @@ public static class CSharpFormatter
                         BraceNewLine = printerOptions.BraceNewLine,
                         PreferBraces = printerOptions.PreferBraces,
                         OmitDefaultAccessibilityModifiers = printerOptions.OmitDefaultAccessibilityModifiers,
+                        ChainFirstExpressionOnSameLine = printerOptions.ChainFirstExpressionOnSameLine,
                     },
                 };
                 document = Node.Print(
