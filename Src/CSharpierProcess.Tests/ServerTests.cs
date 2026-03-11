@@ -53,7 +53,7 @@ public class ServerTests
         string? arguments = null
     )
     {
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "CSharpier.dll");
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "cs-fmt.dll");
 
         var processStartInfo = new ProcessStartInfo("dotnet", $"{path} server {arguments}")
         {
@@ -100,7 +100,7 @@ public class ServerTests
     [Skip("this doesn't kill the processes after it starts them")]
     public void RunTwo()
     {
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "CSharpier.dll");
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "cs-fmt.dll");
 
         async Task NewFunction()
         {
