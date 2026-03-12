@@ -39,6 +39,7 @@ internal class PrintingContext
         public bool BraceNewLine { get; init; } = true;
         public bool PreferBraces { get; init; }
         public bool OmitDefaultAccessibilityModifiers { get; init; }
+        public bool ChainFirstExpressionOnSameLine { get; init; }
     }
 
     public class PrintingContextState

@@ -14,7 +14,7 @@ internal static class RightHandSide
         PrintingContext context
     )
     {
-        var layout = DetermineLayout(leftNode, rightNode);
+        var layout = DetermineLayout(leftNode, rightNode, context);
 
         var groupId = layout == Layout.Fluid ? $"{Layout.Fluid}{Guid.NewGuid()}" : string.Empty;
 
@@ -57,7 +57,7 @@ internal static class RightHandSide
         };
     }
 
-    private static Layout DetermineLayout(CSharpSyntaxNode leftNode, ExpressionSyntax rightNode)
+    private static Layout DetermineLayout(CSharpSyntaxNode leftNode, ExpressionSyntax rightNode, PrintingContext context)
     {
         if (rightNode.GetLeadingTrivia().Any(o => o.IsComment()))
         {
@@ -98,6 +98,16 @@ internal static class RightHandSide
         )
         {
             return Layout.BreakAfterOperator;
+        }
+
+        // When the option is enabled and the right side is a method chain,
+        // keep the first expression on the same line as the operator
+        if (
+            context.Options.ChainFirstExpressionOnSameLine
+            && rightNode is InvocationExpressionSyntax
+        )
+        {
+            return Layout.BasicConcatWithSpace;
         }
 
         return rightNode switch

@@ -304,7 +304,7 @@ public class CliTests
         {
             ArgumentList =
             {
-                Path.Combine(Directory.GetCurrentDirectory(), "CSharpier.dll"),
+                Path.Combine(Directory.GetCurrentDirectory(), "cs-fmt.dll"),
                 "format",
             },
             RedirectStandardInput = false,
@@ -888,7 +888,7 @@ public class CliTests
 
         public CsharpierProcess()
         {
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "CSharpier.dll");
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "cs-fmt.dll");
 
             if (!File.Exists(path))
             {

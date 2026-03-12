@@ -73,6 +73,11 @@ internal class EditorConfigSections
             printerOptions.PreferFileScopedNamespace = preferFileScoped;
         }
 
+        if (resolvedConfiguration.ChainFirstExpressionOnSameLine is { } chainFirst)
+        {
+            printerOptions.ChainFirstExpressionOnSameLine = chainFirst;
+        }
+
         return printerOptions;
     }
 
@@ -88,6 +93,7 @@ internal class EditorConfigSections
         public bool? PreferBraces { get; }
         public bool? OmitDefaultAccessibilityModifiers { get; }
         public bool? PreferFileScopedNamespace { get; }
+        public bool? ChainFirstExpressionOnSameLine { get; }
 
         public ResolvedConfiguration(List<Section> sections)
         {
@@ -164,6 +170,13 @@ internal class EditorConfigSections
             {
                 var value = nsDeclarations.Split(':')[0].Trim();
                 this.PreferFileScopedNamespace = value.Equals("file_scoped", StringComparison.OrdinalIgnoreCase);
+            }
+
+            // csharpier_chain_first_expression_on_same_line = true
+            var chainFirst = sections.LastOrDefault(o => o.ChainFirstExpressionOnSameLine != null)?.ChainFirstExpressionOnSameLine;
+            if (chainFirst != null)
+            {
+                this.ChainFirstExpressionOnSameLine = chainFirst.Equals("true", StringComparison.OrdinalIgnoreCase);
             }
         }
     }
