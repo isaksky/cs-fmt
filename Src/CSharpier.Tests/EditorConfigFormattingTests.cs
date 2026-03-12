@@ -556,11 +556,16 @@ public class EditorConfigFormattingTests
     // CHAIN FIRST EXPRESSION ON SAME LINE TESTS
     // ==========================================================
 
+    // Use a narrow width to force chain wrapping in tests.
+    // Chains need 3+ invocations for PrintMemberChain to allow wrapping.
     private static PrinterOptions ChainSameLineOptions() =>
-        new(Formatter.CSharp) { ChainFirstExpressionOnSameLine = true };
+        new(Formatter.CSharp) { ChainFirstExpressionOnSameLine = true, Width = 50 };
+
+    private static PrinterOptions ChainDefaultOptions() =>
+        new(Formatter.CSharp) { Width = 50 };
 
     [Test]
-    public async Task Chain_FirstExpression_OnSameLine()
+    public async Task Chain_WithOption_FirstExpression_StaysOnSameLine()
     {
         var input = """
             class C
@@ -572,12 +577,12 @@ public class EditorConfigFormattingTests
             }
             """;
         var result = await FormatAsync(input, ChainSameLineOptions());
-        // The first expression 'myList' should stay on the same line as 'var foo ='
+        // With the option, 'myList' stays on the same line as 'var foo ='
         result.Should().Contain("var foo = myList");
     }
 
     [Test]
-    public async Task Chain_Default_BreaksAfterEquals()
+    public async Task Chain_Default_WrapsChainMembers()
     {
         var input = """
             class C
@@ -588,37 +593,56 @@ public class EditorConfigFormattingTests
                 }
             }
             """;
-        // without the option, default behavior applies (Fluid layout)
-        var result = await FormatAsync(input);
-        // Default behavior should still work (we just verify it doesn't crash)
-        result.Should().Contain("var foo");
+        var expected = """
+            class C
+            {
+                void M()
+                {
+                    var foo = myList
+                        .Where(c =>
+                            c.Foo > 10
+                        )
+                        .Select(c =>
+                            c.Bar
+                        )
+                        .ToList();
+                }
+            }
+
+            """;
+        var result = await FormatAsync(
+            input,
+            new PrinterOptions(Formatter.CSharp) { Width = 30 }
+        );
+        result.Should().Be(expected);
     }
 
     [Test]
-    public async Task Chain_NonInvocation_Unaffected()
+    public async Task Chain_WithOption_ShortChain_StaysOnOneLine()
     {
         var input = """
             class C
             {
                 void M()
                 {
-                    var x = 42;
+                    var x = list.ToList();
                 }
             }
             """;
         var result = await FormatAsync(input, ChainSameLineOptions());
-        result.Should().Contain("var x = 42;");
+        // Short enough to fit on one line regardless of option
+        result.Should().Contain("var x = list.ToList()");
     }
 
     [Test]
-    public async Task Chain_Assignment_FirstExpression_OnSameLine()
+    public async Task Chain_WithOption_Assignment_FirstExpression_StaysOnSameLine()
     {
         var input = """
             class C
             {
                 void M()
                 {
-                    string foo;
+                    object foo;
                     foo = myList.Where(c => c.Foo > 10).Select(c => c.Bar).First();
                 }
             }
@@ -627,4 +651,3 @@ public class EditorConfigFormattingTests
         result.Should().Contain("foo = myList");
     }
 }
-
